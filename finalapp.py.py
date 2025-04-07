@@ -14,7 +14,7 @@ FORECAST_YEARS = 5 # Forecast 5 years into the future
 try:
     # A simple way is to assume the data used for saving artifacts is the same
     # Make sure the path is correct for your system
-    _temp_data = pd.read_excel(r"C:\Users\ASUS\Downloads\V5_Capstone_Final_Dataset.xlsx")
+    _temp_data = pd.read_excel(r"V5_Capstone_Final_Dataset.xlsx")
     LATEST_HISTORICAL_YEAR = _temp_data['REF_DATE'].max()
     START_FORECAST_YEAR = LATEST_HISTORICAL_YEAR + 1
     del _temp_data # Clean up temp data
