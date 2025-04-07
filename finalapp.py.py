@@ -202,7 +202,7 @@ st.markdown("Explore potential future trends in Diabetes and High Blood Pressure
 # Load artifacts and data
 model_d, model_hbp, scaler, selected_features, food_cols = load_artifacts()
 # Make sure the path is correct for your system
-data_filepath = r"C:\Users\ASUS\Downloads\V5_Capstone_Final_Dataset.xlsx"
+data_filepath = r"V5_Capstone_Final_Dataset.xlsx"
 data = load_data(data_filepath)
 
 
