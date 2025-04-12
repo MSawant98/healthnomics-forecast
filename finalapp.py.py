@@ -172,19 +172,6 @@ def generate_future_features(historical_data, geo, start_year, num_years, featur
     return final_df
 
 
-# --- Feature Importance Function Definition (No longer called, but kept for reference) ---
-# @st.cache_data
-# def get_feature_importance(_model, feature_names):
-#     """Gets feature importance from the TRAINED model."""
-#     try:
-#         importance = _model.feature_importances_
-#         feature_importance = pd.DataFrame({'Feature': feature_names, 'Importance': importance})
-#         return feature_importance.sort_values(by='Importance', ascending=False)
-#     except AttributeError:
-#         st.warning("Could not retrieve feature importance from the model.")
-#         return pd.DataFrame({'Feature': feature_names, 'Importance': [np.nan]*len(feature_names)})
-
-
 # --- Main App Logic ---
 st.set_page_config(layout="wide")
 st.title("Canada's Economic Shifts & Public Health: Diabetes and HBP Forecasting")
@@ -194,7 +181,7 @@ st.markdown("Explore potential future trends in Diabetes and High Blood Pressure
 model_d, model_hbp, scaler, selected_features, food_cols = load_artifacts()
 # Make sure the path is correct for your system
 data_filepath = r"V5_Capstone_Final_Dataset.xlsx"
-data = load_data(data_filepath)
+data = load_data(data_filepath) # Historical data is still needed for forecasting logic
 
 
 # --- Sidebar Filters ---
@@ -322,36 +309,25 @@ with col2:
     st.dataframe(results_df[['Year', 'Baseline HBP', 'Adjusted HBP']].set_index('Year'))
 
 
-# --- Plotting ---
+# --- Plotting (Historical trace removed) ---
 st.subheader("📈 Visual Forecast Trends")
 
-# Filter historical data first
-historical_filtered = data[(data['GEO'] == geo_filter) & (data['Year'] <= LATEST_HISTORICAL_YEAR)].copy()
-
-# === AGGREGATION STEP ===
-# Group by Year and calculate the mean per capita rate for each year.
-if not historical_filtered.empty:
-    # Calculate mean for target variables. Ensure 'Year' is kept as a column.
-    historical_plot_data_agg = historical_filtered.groupby('Year', as_index=False)[['Diabetes_per_capita', 'HBP_per_capita']].mean()
-    # Ensure Year is int
-    historical_plot_data_agg['Year'] = historical_plot_data_agg['Year'].astype(int)
-else:
-    # Create empty DataFrame with correct columns if no historical data
-    historical_plot_data_agg = pd.DataFrame(columns=['Year', 'Diabetes_per_capita', 'HBP_per_capita'])
-# ========================
-
+# Note: Historical data filtering and aggregation steps are no longer needed for plotting
+# but are kept above because the forecasting logic might still use the 'data' DataFrame.
 
 # Diabetes Plot
 fig_d = go.Figure()
-# Plot the AGGREGATED historical data
-if not historical_plot_data_agg.empty:
-    fig_d.add_trace(go.Scatter(
-        x=historical_plot_data_agg['Year'],             # Use aggregated data X
-        y=historical_plot_data_agg['Diabetes_per_capita'], # Use aggregated data Y
-        mode='lines+markers', name='Historical (Avg)',   # Updated name to reflect aggregation
-        line=dict(color='grey')
-    ))
-# Add forecast lines (these remain the same)
+
+# --- Historical Trace Removed ---
+# if not historical_plot_data_agg.empty:
+#     fig_d.add_trace(go.Scatter(
+#         x=historical_plot_data_agg['Year'],
+#         y=historical_plot_data_agg['Diabetes_per_capita'],
+#         mode='lines+markers', name='Historical (Avg)',
+#         line=dict(color='grey')
+#     ))
+
+# Add forecast lines
 fig_d.add_trace(go.Scatter(
     x=results_df['Year'], y=results_df['Baseline Diabetes'],
     mode='lines+markers', name='Baseline Forecast', line=dict(color='blue', dash='dash')
@@ -364,23 +340,24 @@ fig_d.update_layout(
     title="Diabetes per 1000 People",
     xaxis_title="Year", yaxis_title="Cases per 1000 People", legend_title="Scenario"
 )
-# Update x-axis range calculation using aggregated historical data years
-all_years_d = pd.concat([historical_plot_data_agg['Year'], results_df['Year']]).unique()
-if len(all_years_d) > 0:
-    fig_d.update_xaxes(range=[min(all_years_d) - 1, max(all_years_d) + 1])
+# Update x-axis range calculation using only forecast years
+if not results_df.empty:
+    fig_d.update_xaxes(range=[results_df['Year'].min() - 1, results_df['Year'].max() + 1])
 
 
 # HBP Plot
 fig_hbp = go.Figure()
-# Plot the AGGREGATED historical data
-if not historical_plot_data_agg.empty:
-    fig_hbp.add_trace(go.Scatter(
-        x=historical_plot_data_agg['Year'],           # Use aggregated data X
-        y=historical_plot_data_agg['HBP_per_capita'], # Use aggregated data Y
-        mode='lines+markers', name='Historical (Avg)', # Updated name
-        line=dict(color='grey')
-    ))
-# Add forecast lines (these remain the same)
+
+# --- Historical Trace Removed ---
+# if not historical_plot_data_agg.empty:
+#     fig_hbp.add_trace(go.Scatter(
+#         x=historical_plot_data_agg['Year'],
+#         y=historical_plot_data_agg['HBP_per_capita'],
+#         mode='lines+markers', name='Historical (Avg)',
+#         line=dict(color='grey')
+#     ))
+
+# Add forecast lines
 fig_hbp.add_trace(go.Scatter(
     x=results_df['Year'], y=results_df['Baseline HBP'],
     mode='lines+markers', name='Baseline Forecast', line=dict(color='green', dash='dash')
@@ -393,10 +370,9 @@ fig_hbp.update_layout(
     title="High Blood Pressure per 1000 People",
     xaxis_title="Year", yaxis_title="Cases per 1000 People", legend_title="Scenario"
 )
-# Update x-axis range calculation using aggregated historical data years
-all_years_hbp = pd.concat([historical_plot_data_agg['Year'], results_df['Year']]).unique()
-if len(all_years_hbp) > 0:
-    fig_hbp.update_xaxes(range=[min(all_years_hbp) - 1, max(all_years_hbp) + 1])
+# Update x-axis range calculation using only forecast years
+if not results_df.empty:
+    fig_hbp.update_xaxes(range=[results_df['Year'].min() - 1, results_df['Year'].max() + 1])
 
 # Show plots side-by-side
 col_p1, col_p2 = st.columns(2)
@@ -407,43 +383,6 @@ with col_p2:
 
 
 # --- Feature Importance Section Removed ---
-# st.subheader("🧬 Key Model Drivers (Feature Importance)")
-# st.caption("""
-# These scores show how much each factor contributed *on average* to the model's predictions **during its training on the entire historical dataset**.
-# Higher scores mean the model relied more on that feature historically.
-# **These importance scores are static properties of the trained models and do not change when you select different provinces or adjust future CPI sliders.**
-# """)
-
-# col_fi1, col_fi2 = st.columns(2)
-# with col_fi1:
-#     diabetes_importance = get_feature_importance(model_d, selected_features) # Function call removed
-#     if not diabetes_importance.empty:
-#         fig_fi_d = go.Figure(go.Bar(
-#             y=diabetes_importance['Feature'],
-#             x=diabetes_importance['Importance'],
-#             orientation='h',
-#             marker_color='cornflowerblue'
-#         ))
-#         fig_fi_d.update_layout(
-#             title="Diabetes Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
-#              xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
-#         )
-#         st.plotly_chart(fig_fi_d, use_container_width=True)
-
-# with col_fi2:
-#     hbp_importance = get_feature_importance(model_hbp, selected_features) # Function call removed
-#     if not hbp_importance.empty:
-#         fig_fi_hbp = go.Figure(go.Bar(
-#              y=hbp_importance['Feature'],
-#              x=hbp_importance['Importance'],
-#              orientation='h',
-#              marker_color='lightseagreen'
-#         ))
-#         fig_fi_hbp.update_layout(
-#             title="HBP Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
-#             xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
-#         )
-#         st.plotly_chart(fig_fi_hbp, use_container_width=True)
 
 
 st.sidebar.markdown("---")
