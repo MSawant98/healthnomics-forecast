@@ -172,17 +172,17 @@ def generate_future_features(historical_data, geo, start_year, num_years, featur
     return final_df
 
 
-# --- Feature Importance ---
-@st.cache_data
-def get_feature_importance(_model, feature_names):
-    """Gets feature importance from the TRAINED model."""
-    try:
-        importance = _model.feature_importances_
-        feature_importance = pd.DataFrame({'Feature': feature_names, 'Importance': importance})
-        return feature_importance.sort_values(by='Importance', ascending=False)
-    except AttributeError:
-        st.warning("Could not retrieve feature importance from the model.")
-        return pd.DataFrame({'Feature': feature_names, 'Importance': [np.nan]*len(feature_names)})
+# --- Feature Importance Function Definition (No longer called, but kept for reference) ---
+# @st.cache_data
+# def get_feature_importance(_model, feature_names):
+#     """Gets feature importance from the TRAINED model."""
+#     try:
+#         importance = _model.feature_importances_
+#         feature_importance = pd.DataFrame({'Feature': feature_names, 'Importance': importance})
+#         return feature_importance.sort_values(by='Importance', ascending=False)
+#     except AttributeError:
+#         st.warning("Could not retrieve feature importance from the model.")
+#         return pd.DataFrame({'Feature': feature_names, 'Importance': [np.nan]*len(feature_names)})
 
 
 # --- Main App Logic ---
@@ -406,44 +406,44 @@ with col_p2:
     st.plotly_chart(fig_hbp, use_container_width=True)
 
 
-# --- Feature Importance ---
-st.subheader("🧬 Key Model Drivers (Feature Importance)")
-st.caption("""
-These scores show how much each factor contributed *on average* to the model's predictions **during its training on the entire historical dataset**.
-Higher scores mean the model relied more on that feature historically.
-**These importance scores are static properties of the trained models and do not change when you select different provinces or adjust future CPI sliders.**
-""")
+# --- Feature Importance Section Removed ---
+# st.subheader("🧬 Key Model Drivers (Feature Importance)")
+# st.caption("""
+# These scores show how much each factor contributed *on average* to the model's predictions **during its training on the entire historical dataset**.
+# Higher scores mean the model relied more on that feature historically.
+# **These importance scores are static properties of the trained models and do not change when you select different provinces or adjust future CPI sliders.**
+# """)
 
-col_fi1, col_fi2 = st.columns(2)
-with col_fi1:
-    diabetes_importance = get_feature_importance(model_d, selected_features)
-    if not diabetes_importance.empty:
-        fig_fi_d = go.Figure(go.Bar(
-            y=diabetes_importance['Feature'],
-            x=diabetes_importance['Importance'],
-            orientation='h',
-            marker_color='cornflowerblue'
-        ))
-        fig_fi_d.update_layout(
-            title="Diabetes Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
-             xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
-        )
-        st.plotly_chart(fig_fi_d, use_container_width=True)
+# col_fi1, col_fi2 = st.columns(2)
+# with col_fi1:
+#     diabetes_importance = get_feature_importance(model_d, selected_features) # Function call removed
+#     if not diabetes_importance.empty:
+#         fig_fi_d = go.Figure(go.Bar(
+#             y=diabetes_importance['Feature'],
+#             x=diabetes_importance['Importance'],
+#             orientation='h',
+#             marker_color='cornflowerblue'
+#         ))
+#         fig_fi_d.update_layout(
+#             title="Diabetes Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
+#              xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
+#         )
+#         st.plotly_chart(fig_fi_d, use_container_width=True)
 
-with col_fi2:
-    hbp_importance = get_feature_importance(model_hbp, selected_features)
-    if not hbp_importance.empty:
-        fig_fi_hbp = go.Figure(go.Bar(
-             y=hbp_importance['Feature'],
-             x=hbp_importance['Importance'],
-             orientation='h',
-             marker_color='lightseagreen'
-        ))
-        fig_fi_hbp.update_layout(
-            title="HBP Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
-            xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
-        )
-        st.plotly_chart(fig_fi_hbp, use_container_width=True)
+# with col_fi2:
+#     hbp_importance = get_feature_importance(model_hbp, selected_features) # Function call removed
+#     if not hbp_importance.empty:
+#         fig_fi_hbp = go.Figure(go.Bar(
+#              y=hbp_importance['Feature'],
+#              x=hbp_importance['Importance'],
+#              orientation='h',
+#              marker_color='lightseagreen'
+#         ))
+#         fig_fi_hbp.update_layout(
+#             title="HBP Model Importance", yaxis={'categoryorder':'total ascending'}, height=450,
+#             xaxis_title="Importance Score", margin=dict(l=180, r=20, t=50, b=50)
+#         )
+#         st.plotly_chart(fig_fi_hbp, use_container_width=True)
 
 
 st.sidebar.markdown("---")
