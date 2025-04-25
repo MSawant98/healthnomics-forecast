@@ -84,15 +84,6 @@ Built using **Streamlit** for rapid UI prototyping and interactivity:
 - Developed skills in **collaborative Git workflows** and **streamlined deployment**
 
 ---
-
-## 👤 Contributors
-
-- [Manish Sawant](https://github.com/MSawant98) – Model tuning, UI deployment, data engineering  
-- [Kavindi](https://github.com/suranjan289)  
-- [Niveditha](https://github.com/suranjan289)  
-- [Nimashi](https://github.com/suranjan289)  
-- [Suranjan](https://github.com/suranjan289)
-
 ---
 
 ## 📫 Contact Me
